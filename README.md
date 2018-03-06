@@ -17,8 +17,7 @@ $ composer require jason-xt/lara-setting
 ## Usage
 
 ``` php
-$skeleton = new League\Skeleton();
-echo $skeleton->echoPhrase('Hello, League!');
+
 ```
 
 ## License
