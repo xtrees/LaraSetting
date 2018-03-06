@@ -12,12 +12,16 @@ Via Composer
 
 ``` bash
 $ composer require jason-xt/lara-setting
+
+$ php artisan vendor:publish --tag=config
+$ php artisan vendor:publish --tag=migrations
+$ php artisan migrate
 ```
 
 ## Usage
 
 ``` php
-
+    
 ```
 
 ## License
