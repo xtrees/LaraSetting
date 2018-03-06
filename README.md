@@ -4,7 +4,11 @@
 [![Software License][ico-license]](LICENSE.md)
 [![Total Downloads][ico-downloads]][link-downloads]
 
-### A persistent settings package for Laravel 5.5+
+#### Laravel 设置持久化工具包  / A persistent settings package for Laravel 5.5+
+ 
+> * 数据库存储   / Database persistent
+> * Lavavel 框架自带缓存  / Cache by Laravel framework
+> * 运行时缓存   / Runtime cache
 
 ## Install
 
@@ -23,6 +27,11 @@ $ php artisan migrate
 ``` php
     
 ```
+
+## TODO
+
+* 后台管理 / Setting manage interface
+* 自定义缓存驱动 / Custom cache drive 
 
 ## License
 
