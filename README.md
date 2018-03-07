@@ -5,7 +5,9 @@
 [![Total Downloads][ico-downloads]][link-downloads]
 
 #### Laravel 设置持久化工具包  / A persistent settings package for Laravel 5.5+
- 
+
+<br>
+
 > * 数据库存储   / Database persistent
 > * Laravel 框架自带缓存  / Cache by Laravel framework
 > * 运行时缓存   / Runtime cache  (Get from cache or db one time during Request Lifecycle)
