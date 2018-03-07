@@ -7,7 +7,7 @@
 #### Laravel 设置持久化工具包  / A persistent settings package for Laravel 5.5+
  
 > * 数据库存储   / Database persistent
-> * Lavavel 框架自带缓存  / Cache by Laravel framework
+> * Laravel 框架自带缓存  / Cache by Laravel framework
 > * 运行时缓存   / Runtime cache
 
 ## Install
@@ -22,10 +22,35 @@ $ php artisan vendor:publish --tag=migrations
 $ php artisan migrate
 ```
 
+## Config 
+``` php
+
+return [
+
+    //use framework's cache drive
+    'cache' => [
+
+        'enable' => true,
+        'prefix' => 'settings_',
+        //cache time .minutes
+        'ttl' => 60,
+    ],
+    //运行缓存
+    'runtime' => true,
+
+    //Facade name   LaraSetting::get(..)
+    'facade' => 'LaraSetting',
+];
+
+```    
+
 ## Usage
 
 ``` php
+
+LaraSetting::set('group.key', 'setting-value');
     
+LaraSetting:: get('group.key');
 ```
 
 ## TODO
