@@ -15,7 +15,8 @@ return [
         //cache time .minutes
         'ttl' => 60,
     ],
-    //运行缓存
+
+    //Runtime cache
     'runtime' => true,
 
     //Facade name   LaraSetting::get(..)

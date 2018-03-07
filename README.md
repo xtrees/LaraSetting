@@ -26,18 +26,16 @@ $ php artisan migrate
 
 ## Config 
 ``` php
-
 return [
-
-    //use framework's cache drive
+    //Use framework's cache drive
     'cache' => [
-
         'enable' => true,
         'prefix' => 'settings_',
         //cache time .minutes
         'ttl' => 60,
     ],
-    //运行缓存
+    
+    //Runtime cache  
     'runtime' => true,
 
     //Facade name   LaraSetting::get(..)
