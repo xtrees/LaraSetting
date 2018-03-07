@@ -8,7 +8,7 @@
  
 > * 数据库存储   / Database persistent
 > * Laravel 框架自带缓存  / Cache by Laravel framework
-> * 运行时缓存   / Runtime cache
+> * 运行时缓存   / Runtime cache  (Get from cache or db one time during Request Lifecycle)
 
 ## Install
 
@@ -47,10 +47,15 @@ return [
 ## Usage
 
 ``` php
-
+//Create or update setting in  DB/cache/runtime 
 LaraSetting::set('group.key', 'setting-value');
-    
-LaraSetting:: get('group.key');
+
+//Get the setting from runtime/cache/DB
+LaraSetting::get('group.key');
+
+//Remove setting
+LaraSetting::forget('group.key');
+
 ```
 
 ## TODO
