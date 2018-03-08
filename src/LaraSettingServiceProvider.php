@@ -30,9 +30,6 @@ class LaraSettingServiceProvider extends ServiceProvider
         $loader = AliasLoader::getInstance();
         $loader->alias($facadeName, LaraSettingFacade::class);
 
-
-        $this->app->make('lara-setting');
-
         //
         $this->publishes([
             __DIR__ . '/lara-setting.php' => config_path('lara-setting.php')
