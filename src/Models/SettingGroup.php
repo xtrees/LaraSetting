@@ -10,10 +10,10 @@ namespace JasonXt\LaraSetting\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Settings extends Model
+class SettingGroup extends Model
 {
-    protected $table = 'settings';
+    protected $table = 'setting_group';
 
-    protected $fillable = ['group', 'key', 'value'];
+    protected $fillable = ['name', 'key', 'order'];
 
 }
