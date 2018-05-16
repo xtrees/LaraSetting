@@ -6,7 +6,7 @@
  * Time: 10:22
  */
 
-if (function_exists('settings')) {
+if (!function_exists('settings')) {
     function settings($key, $default = null)
     {
         try {
