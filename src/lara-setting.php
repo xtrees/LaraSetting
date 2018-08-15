@@ -6,18 +6,23 @@
  */
 
 return [
-
-    //use framework's cache drive
+    /*
+   |--------------------------------------------------------------------------
+   | Cache settings
+   |--------------------------------------------------------------------------
+   | Cache use framework's cache drive.
+   | Supported cache mode : 'single', 'batch'
+   | single :  get/update/cache settings records one by one
+   | batch  :  cache all of the setting records together
+   |
+   */
     'cache' => [
-
+        'mode' => 'batch',
         'enable' => true,
-        'prefix' => 'settings_',
+        'prefix' => 'settings:',
         //cache time .minutes
         'ttl' => 60,
     ],
-
-    //Runtime cache
-    'runtime' => true,
 
     //Facade name   LaraSetting::get(..)
     'facade' => 'LaraSetting',
