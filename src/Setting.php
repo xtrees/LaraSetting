@@ -47,7 +47,7 @@ class Setting
         $this->cachePrefix = config('lara-setting.cache.prefix');
         $this->cacheTTL = config('lara-setting.cache.ttl', 60);
         //Only in BATCH mode ,should load all of the config from cache to runtime
-        $this->loadToRunTIme();
+        $this->loadToRunTime();
     }
 
     protected function getCache($key, $default = null)
@@ -180,7 +180,11 @@ class Setting
             //update runtime cache
             $this->runtimeCache[$group][$k] = $value;
             //update framework's cache
-            $this->setCache($this->cacheKey($group, $k), $value);
+            if ($this->cacheMode == self::CACHE_BATCH) {
+                $this->setCache($this->batchKey(), $this->runtimeCache);
+            } else {
+                $this->setCache($this->cacheKey($group, $k), $value);
+            }
             return true;
         } catch (\Exception $exception) {
             return false;
