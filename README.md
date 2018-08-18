@@ -29,15 +29,12 @@ $ php artisan migrate
 return [
     //Use framework's cache drive
     'cache' => [
+        'mode' => 'batch',
         'enable' => true,
-        'prefix' => 'settings_',
+        'prefix' => 'settings:',
         //cache time .minutes
         'ttl' => 60,
     ],
-    
-    //Runtime cache  
-    'runtime' => true,
-
     //Facade name   LaraSetting::get(..)
     'facade' => 'LaraSetting',
 ];
@@ -47,6 +44,9 @@ return [
 ## Usage
 
 ``` php
+//Helper funtion
+settings('group.key')
+
 //Create or update setting in  DB/cache/runtime 
 LaraSetting::set('group.key', 'setting-value');
 
@@ -61,7 +61,6 @@ LaraSetting::forget('group.key');
 ## TODO
 
 * 后台管理 / Setting manage interface
-* 自定义缓存驱动 / Custom cache drive 
 
 ## License
 
