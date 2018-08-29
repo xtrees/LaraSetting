@@ -80,14 +80,17 @@ class Setting
      */
     protected function loadToRunTime()
     {
-        if ($this->cacheMode == self::CACHE_BATCH) {
-            $cache = $this->getCache($this->batchKey());
-            if (empty($cache)) {
-                //no records in Cache ,load all from db
-                $this->loadFromDB();
-            } else {
-                $this->runtimeCache = $cache;
+        try {
+            if ($this->cacheMode == self::CACHE_BATCH) {
+                $cache = $this->getCache($this->batchKey());
+                if (empty($cache)) {
+                    //no records in Cache ,load all from db
+                    $this->loadFromDB();
+                } else {
+                    $this->runtimeCache = $cache;
+                }
             }
+        } catch (\Exception $e) {
         }
     }
 
@@ -133,6 +136,35 @@ class Setting
         return $this->runtimeCache;
     }
 
+    protected function singleCacheUpdate($group, $key)
+    {
+        $record = Settings::query()->select(['group', 'key', 'value'])
+            ->where(compact('group', 'key'))
+            ->first();
+        if (empty($record)) return false;
+        $gr = $record->getAttribute('group');
+        $ke = $record->getAttribute('key');
+        $val = $record->getAttribute('value');
+        $this->runtimeCache[$gr][$ke] = $val;
+
+        $cacheKey = $this->cacheKey($gr, $ke);
+        $this->setCache($cacheKey, $val);
+        return true;
+    }
+
+    protected function batchCacheUpdate()
+    {
+        $records = Settings::query()->select(['group', 'key', 'value'])->get();
+        foreach ($records as $record) {
+            $gr = $record->getAttribute('group');
+            $ke = $record->getAttribute('key');
+            $val = $record->getAttribute('value');
+            $this->runtimeCache[$gr][$ke] = $val;
+        }
+        Cache::set($this->batchKey(), $this->runtimeCache, $this->cacheTTL);
+        return true;
+    }
+
     /**
      * Get setting from cache or db by full key
      *
@@ -144,20 +176,23 @@ class Setting
     {
         try {
             list($group, $k) = $this->prepareKey($key);
-
             if ($update) {
-                return $need = $this->loadFromDB($group, $k);
-            } else {
-                $need = array_get($this->runtimeCache, $key, null);
-                if (!is_null($need)) return $need;
-                //load from framework's cache
-                if ($this->cacheEnabled) {
-                    $cacheKey = $this->cacheKey($group, $k);
-                    $need = $this->getCache($cacheKey, null);
-                    if (!is_null($need)) return $need;
+                if ($this->cacheMode = self::CACHE_BATCH) {
+                    $this->batchCacheUpdate();
+                } else {
+                    $this->singleCacheUpdate($group, $k);
                 }
-                return $this->loadFromDB($group, $k);
             }
+            $need = array_get($this->runtimeCache, $key, null);
+            if ($this->cacheMode = self::CACHE_BATCH) {
+                return $need;
+            }
+            if (!is_null($need)) return $need;
+            //load from framework's cache
+            $cacheKey = $this->cacheKey($group, $k);
+            $need = $this->getCache($cacheKey, null);
+            if (!is_null($need)) return $need;
+            return $this->loadFromDB($group, $k);
         } catch (\Exception $exception) {
             return null;
         }
@@ -181,7 +216,7 @@ class Setting
             $this->runtimeCache[$group][$k] = $value;
             //update framework's cache
             if ($this->cacheMode == self::CACHE_BATCH) {
-                $this->setCache($this->batchKey(), $this->runtimeCache);
+                $this->batchCacheUpdate();
             } else {
                 $this->setCache($this->cacheKey($group, $k), $value);
             }
