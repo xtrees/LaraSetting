@@ -7,6 +7,12 @@
  */
 
 if (!function_exists('settings')) {
+
+    /**
+     * @param $key
+     * @param null $default
+     * @return null
+     */
     function settings($key, $default = null)
     {
         try {

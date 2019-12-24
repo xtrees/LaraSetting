@@ -1,36 +1,28 @@
 {
-    "name": "jason-xt/lara-setting",
+    "name": "xtrees/lara-setting",
     "type": "library",
-    "description": "A persistent settings package for Laravel 5.5+",
-    "keywords": ["laravel", "persistent", "setting"],
-    "homepage": "https://github.com/JasonXt/LaraSetting/",
+    "description": "A persistent settings package for Laravel 6.0+ with manager api and interface",
+    "keywords": ["laravel", "persistent", "setting", "configuration", "manager interface", "cache"],
+    "homepage": "https://github.com/xtrees/LaraSetting/",
     "license": "MIT",
     "authors": [
         {
             "name": "xutao",
             "email": "649223152@qq.com",
-            "homepage": "https://github.com/JasonXt/LaraSetting/",
+            "homepage": "https://github.com/xtrees/LaraSetting/",
             "role": "Developer"
         }
     ],
     "require": {
-        "laravel/framework": "~6.0",
-        "php" : "~7.2"
+        "php" : "~7.2",
+        "laravel/framework": "~6.0"
     },
     "require-dev": {
 
     },
     "autoload": {
         "psr-4": {
-            "JasonXt\\LaraSetting\\": "src"
-        },
-        "files":[
-            "src/helpers.php"
-        ]
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "JasonXt\\LaraSetting\\": "tests"
+            "Xtrees\\LaraSetting\\": "src"
         }
     },
     "scripts": {
@@ -38,11 +30,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "JasonXt\\LaraSetting\\LaraSettingServiceProvider"
+                "Xtrees\\LaraSetting\\LaraSettingServiceProvider"
             ]
-        },
-        "branch-alias": {
-            "dev-master": "1.0-dev"
         }
     },
     "config": {

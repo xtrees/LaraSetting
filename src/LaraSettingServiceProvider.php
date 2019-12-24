@@ -1,10 +1,10 @@
 <?php
 
-namespace JasonXt\LaraSetting;
+namespace Xtrees\LaraSetting;
 
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider;
-use JasonXt\LaraSetting\Facades\LaraSetting as LaraSettingFacade;
+use Xtrees\LaraSetting\Facades\LaraSetting as LaraSettingFacade;
 
 class LaraSettingServiceProvider extends ServiceProvider
 {
@@ -15,29 +15,15 @@ class LaraSettingServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->mergeConfigFrom(
-            __DIR__ . '/lara-setting.php', 'lara-setting'
-        );
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__ . '/../lara-setting.php' => config_path('lara-setting.php')
+            ], 'lara-setting-config');
 
-        // Register into container
-        $this->app->singleton('lara-setting', function () {
-            return new Setting();
-        });
-
-        //Register Facades (load from config)
-        $facadeName = config('lara-setting.facade', 'LaraSetting');
-
-        $loader = AliasLoader::getInstance();
-        $loader->alias($facadeName, LaraSettingFacade::class);
-
-        //
-        $this->publishes([
-            __DIR__ . '/lara-setting.php' => config_path('lara-setting.php')
-        ], 'config');
-
-        $this->publishes([
-            __DIR__ . '/database/migrations/' => database_path('migrations')
-        ], 'migrations');
+            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        }
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'setting');
+        $this->loadRoutesFrom(__DIR__ . '/../routes.php');
     }
 
     /**
@@ -47,6 +33,18 @@ class LaraSettingServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+
+        $this->mergeConfigFrom(
+            __DIR__ . '/../lara-setting.php', 'lara-setting'
+        );
+        // Register into container
+        $this->app->singleton('lara-setting', function () {
+            return new Setting();
+        });
+
+        //Register Facades (load from config)
+        AliasLoader::getInstance([
+            config('lara-setting.facade', 'LaraSetting') => LaraSettingFacade::class
+        ])->register();
     }
 }

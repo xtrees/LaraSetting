@@ -1,6 +1,6 @@
 <?php
 
-namespace JasonXt\LaraSetting\Facades;
+namespace Xtrees\LaraSetting\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

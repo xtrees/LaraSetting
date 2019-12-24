@@ -1,9 +1,10 @@
 <?php
 
-namespace JasonXt\LaraSetting;
+namespace Xtrees\LaraSetting;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
-use JasonXt\LaraSetting\Models\Settings;
+use Xtrees\LaraSetting\Models\SettingModel;
 
 /**
  * User: Monster
@@ -12,10 +13,6 @@ use JasonXt\LaraSetting\Models\Settings;
  */
 class Setting
 {
-
-    const CACHE_BATCH = 'batch';
-    const CACHE_SINGLE = 'single';
-
     protected $cacheEnabled = false;
     /**
      *  Cache Key prefix
@@ -36,235 +33,146 @@ class Setting
      */
     protected $runtimeCache = [];
 
-    protected $cacheMode = 'single';
 
-    protected $batchCacheKey = 'batch';
-
-    function __construct()
+    public function __construct()
     {
-        $this->cacheMode = config('lara-setting.cache.mode', 'single');
         $this->cacheEnabled = config('lara-setting.cache.enable') ? true : false;
         $this->cachePrefix = config('lara-setting.cache.prefix');
         $this->cacheTTL = config('lara-setting.cache.ttl', 60);
-        //Only in BATCH mode ,should load all of the config from cache to runtime
-        $this->loadToRunTime();
+
+        $this->eager();
     }
 
-    protected function getCache($key, $default = null)
+    protected function eager()
     {
+        $key = $this->cacheKey('eager');
         if ($this->cacheEnabled) {
-            return Cache::get($key, $default);
+            //query from cache
+            $cache = Cache::get($key, null);
+            if (!is_null($cache)) {
+                $this->runtime($cache);
+                return true;
+            }
         }
-        return null;
+        $settings = SettingModel::query()->eager()->get();
+
+        $data = $this->build($settings);
+        $this->runtime($data);
+
+        if ($this->cacheEnabled) {
+            //put to cache
+            Cache::put($key, $data, $this->cacheTTL);
+        }
+        return true;
     }
 
-    protected function setCache($key, $value)
-    {
-        if ($this->cacheEnabled) {
-            return Cache::set($key, $value, $this->cacheTTL);
-        }
-        return false;
-    }
-
-    protected function forgetCache($key)
-    {
-        if ($this->cacheEnabled) {
-            return Cache::forget($key);
-        }
-        return false;
-    }
-
-    /**
-     *  Load all of the records from cache to runtime;
-     *  for bacth mode
-     */
-    protected function loadToRunTime()
+    protected function single($fKey)
     {
         try {
-            if ($this->cacheMode == self::CACHE_BATCH) {
-                $cache = $this->getCache($this->batchKey());
-                if (empty($cache)) {
-                    //no records in Cache ,load all from db
-                    $this->loadFromDB();
-                } else {
-                    $this->runtimeCache = $cache;
-                }
-            }
+            list($group, $key) = $this->parseKey($fKey);
+            $setting = SettingModel::query()->where([
+                'group' => $group,
+                'key' => $key
+            ])->firstOrFail();
         } catch (\Exception $e) {
-        }
-    }
-
-    protected function batchKey()
-    {
-        return $this->cachePrefix . $this->batchCacheKey;
-    }
-
-    /**
-     * Get all or single records from db
-     *
-     * @param $group
-     * @param $key
-     * @return string|array
-     */
-    protected function loadFromDB($group = null, $key = null)
-    {
-        $builder = Settings::query()->select(['group', 'key', 'value']);
-        if (!empty($group) && !empty($key)) {
-            $builder->where(compact('group', 'key'));
-        }
-        $records = $builder->get();
-        /** @var Settings $record */
-        foreach ($records as $record) {
-            $gr = $record->getAttribute('group');
-            $ke = $record->getAttribute('key');
-            $val = $record->getAttribute('value');
-            //save to cache in SINGLE mode
-            if ($this->cacheMode == self::CACHE_SINGLE) {
-                $cacheKey = $this->cacheKey($gr, $ke);
-                $this->setCache($cacheKey, $val);
-            }
-            //save to runtime
-            $this->runtimeCache[$gr][$ke] = $val;
-        }
-        if ($this->cacheMode == self::CACHE_BATCH) {
-            Cache::set($this->batchKey(), $this->runtimeCache, $this->cacheTTL);
-        }
-
-        if (!empty($group) && !empty($key)) {
-            return array_get($this->runtimeCache, $group . '.' . $key);
-        }
-        return $this->runtimeCache;
-    }
-
-    protected function singleCacheUpdate($group, $key)
-    {
-        $record = Settings::query()->select(['group', 'key', 'value'])
-            ->where(compact('group', 'key'))
-            ->first();
-        if (empty($record)) return false;
-        $gr = $record->getAttribute('group');
-        $ke = $record->getAttribute('key');
-        $val = $record->getAttribute('value');
-        $this->runtimeCache[$gr][$ke] = $val;
-
-        $cacheKey = $this->cacheKey($gr, $ke);
-        $this->setCache($cacheKey, $val);
-        return true;
-    }
-
-    protected function batchCacheUpdate()
-    {
-        $records = Settings::query()->select(['group', 'key', 'value'])->get();
-        foreach ($records as $record) {
-            $gr = $record->getAttribute('group');
-            $ke = $record->getAttribute('key');
-            $val = $record->getAttribute('value');
-            $this->runtimeCache[$gr][$ke] = $val;
-        }
-        Cache::set($this->batchKey(), $this->runtimeCache, $this->cacheTTL);
-        return true;
-    }
-
-    /**
-     * Get setting from cache or db by full key
-     *
-     * @param $key
-     * @param bool $update
-     * @return mixed|null
-     */
-    public function get($key, $update = false)
-    {
-        try {
-            list($group, $k) = $this->prepareKey($key);
-            if ($update) {
-                if ($this->cacheMode = self::CACHE_BATCH) {
-                    $this->batchCacheUpdate();
-                } else {
-                    $this->singleCacheUpdate($group, $k);
-                }
-            }
-            $need = array_get($this->runtimeCache, $key, null);
-            if ($this->cacheMode = self::CACHE_BATCH) {
-                return $need;
-            }
-            if (!is_null($need)) return $need;
-            //load from framework's cache
-            $cacheKey = $this->cacheKey($group, $k);
-            $need = $this->getCache($cacheKey, null);
-            if (!is_null($need)) return $need;
-            return $this->loadFromDB($group, $k);
-        } catch (\Exception $exception) {
             return null;
         }
-    }
 
-    /**
-     * Update  or create  setting  by  full key
-     *
-     * @param $key
-     * @param $value
-     * @return bool
-     */
-    public function set($key, $value)
-    {
-        try {
-            list($group, $k) = $this->prepareKey($key);
-            $model = Settings::query()->firstOrNew(['group' => $group, 'key' => $k]);
-            $model->setAttribute('value', $value);
-            $model->save();
-            //update runtime cache
-            $this->runtimeCache[$group][$k] = $value;
-            //update framework's cache
-            if ($this->cacheMode == self::CACHE_BATCH) {
-                $this->batchCacheUpdate();
-            } else {
-                $this->setCache($this->cacheKey($group, $k), $value);
-            }
-            return true;
-        } catch (\Exception $exception) {
-            return false;
+        $val = $setting->getAttribute('value');
+        $data = [
+            $fKey => $val
+        ];
+        $this->runtime($data);
+
+        if ($this->cacheEnabled) {
+            $ck = $this->cacheKey($fKey);
+            Cache::put($ck, $val, $this->cacheTTL);
         }
+        return $val;
     }
 
-
-    /**
-     * Remove one setting from db and cache
-     *
-     * @param $fKey
-     * @return bool
-     */
-    public function forget($fKey)
+    protected function cacheKey($key = '')
     {
-        try {
-            list($group, $key) = $this->prepareKey($fKey);
-            $model = Settings::query()->where(compact('group', 'key'))->firstOrFail();
-            $model->delete();
-            unset($this->runtimeCache[$group][$key]);
-            $this->forgetCache($this->cacheKey($group, $key));
-            return true;
-        } catch (\Exception $exception) {
-            return false;
+        return $this->cachePrefix . $key;
+    }
+
+    public function clearCache($fKey)
+    {
+        if ($this->cacheEnabled) {
+            $ck = $this->cacheKey($fKey);
+            Cache::forget($ck);
+            $ck = $this->cacheKey('eager');
+            Cache::forget($ck);
         }
     }
 
     /**
-     * Parse full key  to  group and key in db
-     *
      * @param $key
      * @return array
      * @throws \Exception
      */
-    private function prepareKey($key)
+    protected function parseKey($key)
     {
         list($group, $k) = explode('.', $key);
         //check the key
         if (empty($group) || empty($k)) throw new \Exception("Setting Key is wrong");
-
         return [$group, $k];
     }
 
-    private function cacheKey($group, $key)
+    protected function build($settings)
     {
-        return $this->cachePrefix . ':' . $group . ':' . $key;
+        $data = [];
+        /** @var SettingModel $setting */
+        foreach ($settings as $setting) {
+            $ck = $setting->getAttribute('fullKey');
+            $val = $setting->getAttribute('value');
+            $data[$ck] = $val;
+        }
+        return $data;
+    }
+
+    protected function runtime($cf = [])
+    {
+        foreach ($cf as $ck => $cv) {
+            Arr::set($this->runtimeCache, $ck, $cv);
+        }
+    }
+
+    public function get($key)
+    {
+        //runtime
+        $run = Arr::get($this->runtimeCache, $key, null);
+        if (!is_null($run)) return $run;
+        //cache
+        if ($this->cacheEnabled && !is_null($ca = Cache::get($this->cacheKey($key)))) {
+            return $ca;
+        }
+        //db
+        $result = $this->single($key);
+
+        return $result;
+    }
+
+    public function set($fKey, $val)
+    {
+        try {
+            list($group, $key) = $this->parseKey($fKey);
+            $setting = SettingModel::query()->where([
+                'group' => $group,
+                'key' => $key
+            ])->firstOrFail();
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        $setting->setAttribute('value', $val);
+        $setting->save();
+        $this->runtime([$fKey => $val]);
+
+        if ($this->cacheEnabled) {
+            $ck = $this->cacheKey($key);
+            Cache::put($ck, $val, $this->cacheTTL);
+        }
+        return true;
     }
 }

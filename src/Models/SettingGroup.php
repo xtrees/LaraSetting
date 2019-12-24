@@ -5,15 +5,15 @@
  * Time: 16:28
  */
 
-namespace JasonXt\LaraSetting\Models;
+namespace Xtrees\LaraSetting\Models;
 
 
 use Illuminate\Database\Eloquent\Model;
 
 class SettingGroup extends Model
 {
-    protected $table = 'setting_group';
+    protected $table = 'setting_groups';
 
-    protected $fillable = ['name', 'key', 'order'];
+    protected $fillable = ['title', 'key', 'order'];
 
 }
