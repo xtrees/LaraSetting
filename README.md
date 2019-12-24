@@ -22,7 +22,7 @@
 Via Composer
 
 ``` bash
-$ composer require jason-xt/lara-setting
+$ composer require xtrees/lara-setting
 
 $ php artisan vendor:publish --tag=config
 $ php artisan vendor:publish --tag=migrations
