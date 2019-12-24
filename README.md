@@ -1,10 +1,15 @@
-# LaraSetting
+# LaraSetting (未完成后台)
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
 [![Total Downloads][ico-downloads]][link-downloads]
 
-#### Laravel 设置持久化工具包  / A persistent settings package for Laravel 5.5+
+#### Laravel 设置持久化工具包  / A persistent settings package for Laravel 6.0+
+
+
+## 后台管理 / Setting manage interface
+
+![avatar](web.png)
 
 <br>
 
@@ -57,10 +62,6 @@ LaraSetting::get('group.key');
 LaraSetting::forget('group.key');
 
 ```
-
-## TODO
-
-* 后台管理 / Setting manage interface
 
 ## License
 
