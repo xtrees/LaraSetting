@@ -7,7 +7,10 @@
 
 return [
     'facade' => 'LaraSetting',
-
+    'route' => [
+        'prefix' => '',
+        'middleware' => 'web',
+    ],
     'cache' => [
         'enable' => false,
         'ttl' => 60,

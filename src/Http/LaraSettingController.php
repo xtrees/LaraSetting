@@ -33,20 +33,22 @@ class LaraSettingController extends BaseController
 
     public function update(Request $request)
     {
-        $data = $request->only(['group', 'key', 'value']);
+        $data = $request->only(['group', 'key', 'value', 'eager']);
         $validator = \Validator::make($data, [
             'group' => 'required|alpha',
             'key' => 'required|alpha',
-            'value' => 'required'
+            'value' => 'required',
+//            'eager'=>'required|boolean'
         ]);
         if ($validator->fails()) {
             return $this->error($validator->messages()->first());
         }
         try {
-            $val = $data['value'];
-            unset($data['value']);
-            $setting = SettingModel::query()->where($data)->firstOrFail();
-            $setting->setAttribute('value', $val);
+            $where = $request->only([
+                'group', 'key'
+            ]);
+            $setting = SettingModel::query()->where($where)->firstOrFail();
+            $setting->fill($data);
             $setting->save();
 
             $instance = app()->make('lara-setting');

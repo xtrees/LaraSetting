@@ -96,8 +96,9 @@
                                             </div>
                                             <div class="form-group col-md-2">
                                                 <label for="eager" class="d-block">预加载</label>
+                                                <input type="hidden" name="eager" value="0">
                                                 <input name="eager" class="form-control eager" title="" type="checkbox"
-                                                       data-toggle="toggle" {{ $setting->eager?'checked':'' }}>
+                                                       data-toggle="toggle" {{ $setting->eager?'checked':'' }} value="1">
                                             </div>
                                             <div class="form-group col-md-2">
                                                 <label class="d-block">操作</label>
@@ -197,7 +198,8 @@
                     </div>
 
                     <label for="eager" class="d-block">预加载</label>
-                    <input name="eager" class="form-control" title="" type="checkbox" data-toggle="toggle">
+                    <input type="hidden" name="eager" value="0">
+                    <input name="eager" class="form-control" title="" type="checkbox" data-toggle="toggle" value="1">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>

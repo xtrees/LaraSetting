@@ -23,6 +23,10 @@ class SettingModel extends Model
     protected $fillable = ['title', 'group', 'key', 'value', 'eager'];
 
 
+    protected $casts =[
+        'eager'=>'boolean',
+    ];
+
     public function scopeEager(Builder $query)
     {
         return $query->where('eager', true);
