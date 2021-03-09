@@ -83,11 +83,12 @@
                                                     <small>{{ $setting->fullKey }}</small>
                                                 </label>
                                                 @if($setting->type =='textarea')
-                                                    <textarea class="form-control" title=""
+                                                    <textarea class="form-control" title="" rows="5"
                                                               name="value">{{ $setting->value }}</textarea>
                                                 @elseif($setting->type  =='bool')
+                                                    <input name="value" type="hidden" value="0">
                                                     <input name="value" class="form-control"
-                                                           type="checkbox" title=""
+                                                           type="checkbox" title="" value="1"
                                                            data-toggle="toggle" {{ $setting->value?'checked':'' }}>
                                                 @else
                                                     <input name="value" class="form-control" title=""
@@ -235,7 +236,7 @@
         animation: 150,
         onEnd: function (/**Event*/evt) {
             $.ajax({
-                url: "settings/group/sort",
+                url: "{{ route('lara.setting.group.sort') }}",
                 type: "POST",
                 data: {sort: sortable.toArray()},
                 success: function (r) {
@@ -259,7 +260,7 @@
         let data = btn.parents('form').serialize();
 
         $.ajax({
-            url: "settings/group",
+            url: "{{ route('lara.setting.group.create') }}",
             type: "PUT",
             data: data,
             success: function (r) {
@@ -282,7 +283,7 @@
         let btn = $(this);
         btn.attr('disabled', true);
         $.ajax({
-            url: "settings/update",
+            url: "{{ route('lara.setting.update') }}",
             type: "POST",
             data: btn.parents('form').serialize(),
             success: function (r) {
@@ -332,7 +333,7 @@
         let btn = $(this);
         btn.attr('disabled', true);
         $.ajax({
-            url: "settings/create",
+            url: "{{ route('lara.setting.create') }}",
             type: "PUT",
             data: btn.parents('form').serialize(),
             success: function (r) {
