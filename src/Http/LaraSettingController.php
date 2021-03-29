@@ -35,8 +35,8 @@ class LaraSettingController extends BaseController
     {
         $data = $request->only(['group', 'key', 'value', 'eager']);
         $validator = \Validator::make($data, [
-            'group' => 'required|alpha',
-            'key' => 'required|alpha',
+            'group' => 'required|alpha_dash',
+            'key' => 'required|alpha_dash',
             'value' => 'required',
 //            'eager'=>'required|boolean'
         ]);
@@ -64,8 +64,8 @@ class LaraSettingController extends BaseController
     {
         $data = $request->only(['group', 'title', 'key', 'type', 'value']);
         $validator = \Validator::make($data, [
-            'group' => 'required|alpha',
-            'key' => 'required|alpha',
+            'group' => 'required|alpha_dash',
+            'key' => 'required|alpha_dash',
             'title' => 'required',
             'value' => 'required',
             'type' => 'required',
@@ -93,7 +93,7 @@ class LaraSettingController extends BaseController
         $data = $request->only(['title', 'key']);
         $validator = \Validator::make($data, [
             'title' => 'required',
-            'key' => 'required|alpha'
+            'key' => 'required|alpha_dash'
         ]);
         if ($validator->fails()) {
             return $this->error($validator->messages()->first());

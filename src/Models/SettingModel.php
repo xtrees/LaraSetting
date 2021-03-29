@@ -20,11 +20,11 @@ class SettingModel extends Model
 {
     protected $table = 'settings';
 
-    protected $fillable = ['title', 'group', 'key', 'value', 'eager'];
+    protected $fillable = ['title', 'group', 'key', 'value', 'type', 'eager'];
 
 
-    protected $casts =[
-        'eager'=>'boolean',
+    protected $casts = [
+        'eager' => 'boolean',
     ];
 
     public function scopeEager(Builder $query)
